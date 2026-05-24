@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080816">
+
+<!-- 微信 / 社交媒体分享卡片 (Open Graph) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="望舒塔罗 · Wangshu Tarot">
+<meta property="og:description" content="月光下的牌阵 · 八字 + 塔罗 + AI 解读。让望舒姐姐为你揭开命运的牌面。">
+<meta property="og:image" content="https://placehold.co/600x315/080816/d4cfc4?text=🌙+望舒塔罗">
+<meta property="og:image:width" content="600">
+<meta property="og:image:height" content="315">
+<meta property="og:url" content="">
+<meta property="og:site_name" content="望舒塔罗">
+<!-- 微信专用 -->
+<meta itemprop="name" content="望舒塔罗 · Wangshu Tarot">
+<meta itemprop="description" content="月光下的牌阵 · 八字 + 塔罗 + AI 解读">
+<meta itemprop="image" content="https://placehold.co/600x315/080816/d4cfc4?text=🌙+望舒塔罗">
+
+<title>望舒塔罗 · Wangshu Tarot</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* 内联关键CSS防止白屏 */
+  body{margin:0;background:#080816;color:#d4cfc4;font-family:'PingFang SC','Hiragino Sans GB',serif;}
+  #starfield{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+  .moon-indicator{position:fixed;top:16px;right:16px;z-index:100;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fefce8,#e8dcc0 40%,#c8b880 80%);animation:moonGlow 4s ease-in-out infinite;display:flex;align-items:center;justify-content:center;}
+  .moon-indicator::after{content:'🌙';font-size:18px;}
+  @keyframes moonGlow{0%,100%{box-shadow:0 0 30px rgba(240,215,140,0.25),0 0 60px rgba(200,160,80,0.12);}50%{box-shadow:0 0 40px rgba(240,215,140,0.35),0 0 80px rgba(200,160,80,0.18);}}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="moon-indicator" title="望舒塔罗 · 月之密仪"></div>
+<div class="app">
+  <!-- ===== S0: 欢迎 ===== -->
+  <section class="section active" id="sec-welcome">
+    <div class="welcome">
+      <div class="avatar">🌙</div>
+      <h1>望舒塔罗</h1>
+      <p class="subtitle">W A N G S H U · T A R O T</p>
+      <div class="divider"></div>
+      <p class="intro">在月光下展开你的牌阵<br>让星辰与八字为你指引方向</p>
+      <div class="mt-32">
+        <button class="btn btn-primary" onclick="goStep('profile')">
+          ✨ 开始占卜
+        </button>
+      </div>
+    </div>
+  </section>
+  <!-- ===== S1: 个人资料 ===== -->
+  <section class="section" id="sec-profile">
+    <div style="flex:1;width:100%;display:flex;flex-direction:column;justify-content:center;">
+      <div class="form-panel">
+        <div class="form-title">🌙 请告诉我关于你</div>
+        <div class="form-subtitle">信息越准确，解读越精准</div>
+        <div class="form-group">
+          <label class="form-label"><span class="icon">👤</span> 名字或昵称</label>
+          <input class="form-input" id="input-name" placeholder="请输入名字（选填）" maxlength="20">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><span class="icon">🎂</span> 出生年份</label>
+            <input class="form-input" id="input-year" type="number" placeholder="如 1995" min="1900" max="2026">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon">📅</span> 月份</label>
+            <select class="form-select" id="input-month" onchange="updateDayOptions()">
+              <option value="">选择</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option>
+              <option>5</option><option>6</option><option>7</option><option>8</option>
+              <option>9</option><option>10</option><option>11</option><option>12</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon">📅</span> 日期</label>
+            <select class="form-select" id="input-day"><option value="">选择</option></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><span class="icon">⏰</span> 出生时辰</label>
+            <select class="form-select" id="input-hour">
+              <option value="">不记得了</option>
+              <option value="0">子时 23:00-01:00</option>
+              <option value="1">丑时 01:00-03:00</option>
+              <option value="2">寅时 03:00-05:00</option>
+              <option value="3">卯时 05:00-07:00</option>
+              <option value="4">辰时 07:00-09:00</option>
+              <option value="5">巳时 09:00-11:00</option>
+              <option value="6">午时 11:00-13:00</option>
+              <option value="7">未时 13:00-15:00</option>
+              <option value="8">申时 15:00-17:00</option>
+              <option value="9">酉时 17:00-19:00</option>
+              <option value="10">戌时 19:00-21:00</option>
+              <option value="11">亥时 21:00-23:00</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon">⚤</span> 性别</label>
+            <select class="form-select" id="input-gender">
+              <option value="">选择</option>
+              <option value="male">男性</option>
+              <option value="female">女性</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="icon">💭</span> 你想问什么？</label>
+          <textarea class="form-textarea" id="input-question" placeholder="把心里的疑问写下来吧...&#10;比如：最近的感情会顺利吗？这份工作适合我吗？" rows="3"></textarea>
+        </div>
+        <div class="hint-box">
+          <p class="star">✨</p>
+          <p>出生日期会用于八字排盘和星座分析<br>让望舒更懂你，给出更贴心的指引</p>
+        </div>
+        <div class="mt-20 text-center">
+          <button class="btn btn-primary" onclick="submitProfile()">
+            🌟 继续 → 选择牌阵
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ===== S2: 牌阵选择 ===== -->
+  <section class="section" id="sec-spread">
+    <div style="flex:1;width:100%;display:flex;flex-direction:column;justify-content:center;">
+      <div class="text-center mb-16">
+        <div style="font-size:2em;margin-bottom:8px;">🃏</div>
+        <div style="color:var(--gold-bright);font-size:1.2em;letter-spacing:2px;">选择牌阵</div>
+      </div>
+      <div class="spread-options">
+        <div class="spread-card selected" onclick="selectSpread('single')" id="spread-single">
+          <div class="card-icon">☀️</div>
+          <div class="info">
+            <h3>单张指引</h3>
+            <p>一张牌，直击核心。适合简单直接的问题。</p>
+          </div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="spread-card" onclick="selectSpread('three')" id="spread-three">
+          <div class="card-icon">🌓</div>
+          <div class="info">
+            <h3>三牌阵 · 过去·现在·未来</h3>
+            <p>看清事情的脉络走向，理解因果循环。</p>
+          </div>
+          <div class="arrow">→</div>
+        </div>
+        <div class="spread-card" onclick="selectSpread('celtic')" id="spread-celtic">
+          <div class="card-icon">🌌</div>
+          <div class="info">
+            <h3>凯尔特十字 · 十牌全盘</h3>
+            <p>完整的人生透视。十张牌覆盖所有维度。</p>
+          </div>
+          <div class="arrow">→</div>
+        </div>
+      </div>
+      <div class="mt-20 text-center">
+        <button class="btn btn-secondary btn-small" onclick="goStep('profile')">← 返回修改信息</button>
+        <button class="btn btn-primary" onclick="goStep('shuffle')" style="margin-left:10px;">
+          开始洗牌 🔮
+        </button>
+      </div>
+    </div>
+  </section>
+  <!-- ===== S3: 洗牌 & 抽牌（仪式感升级） ===== -->
+  <section class="section" id="sec-shuffle">
+    <div style="flex:1;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div class="ritual-area" id="ritual-area">
+        <div class="ritual-aura"></div>
+        <div class="ritual-prompt" id="ritual-prompt">🔮 静下心来，把问题在心里默念三遍</div>
+        <div class="ritual-sub" id="ritual-sub">然后点击下方按钮开始洗牌</div>
+
+        <!-- 阶段一：牌堆静止/洗牌 -->
+        <div class="deck-cluster" id="deck-cluster" style="display:flex;">
+          <div class="mini-card">🌙</div>
+          <div class="mini-card">✨</div>
+          <div class="mini-card">🃏</div>
+          <div class="mini-card">⭐</div>
+          <div class="mini-card">🌙</div>
+        </div>
+
+        <!-- 阶段二：扇形铺开供选牌 -->
+        <div class="fan-deck" id="fan-deck" style="display:none;"></div>
+        <div class="fan-counter" id="fan-counter" style="display:none;"></div>
+
+        <!-- 抽牌进度点 -->
+        <div class="draw-progress" id="draw-progress" style="display:none;"></div>
+      </div>
+
+      <div id="drawn-area" style="display:none;width:100%;">
+        <div class="drawn-cards" id="drawn-cards-container"></div>
+        <div class="text-center mt-20">
+          <button class="btn btn-primary" id="btn-reveal" style="display:none;" onclick="revealAll()">
+            ✨ 全部翻开
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-20 text-center">
+        <button class="btn btn-secondary btn-small" id="btn-shuffle" onclick="startShuffle()">
+          🎴 开始洗牌
+        </button>
+        <button class="btn btn-primary" id="btn-draw" style="display:none;" onclick="enterPickPhase()">
+          🃏 开始抽牌
+        </button>
+        <button class="btn btn-secondary btn-small" id="btn-back-spread" onclick="goStep('spread')" style="display:inline-flex;margin-left:8px;">
+          ← 返回
+        </button>
+      </div>
+    </div>
+  </section>
+  <!-- ===== S4: 解读 ===== -->
+  <section class="section" id="sec-reading">
+    <div style="width:100%;">
+      <div class="text-center mb-16">
+        <div style="font-size:2em;">🌙</div>
+        <div style="color:var(--gold-bright);font-size:1.3em;letter-spacing:2px;">你的牌阵解读</div>
+      </div>
+      <div id="reading-container"></div>
+      <div class="text-center mt-20">
+        <button class="btn btn-primary" onclick="resetAll()">
+          🔄 重新占卜
+        </button>
+      </div>
+      <div class="text-center mt-12">
+        <button class="btn btn-secondary btn-small" onclick="goStep('shuffle')">
+          🔮 再占一次
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== 星空背景JS（内联防闪烁） ===== -->
+<script>
+(function(){
+  const c=document.getElementById('starfield'),ctx=c.getContext('2d');
+  let stars=[],w,h;
+  function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}
+  resize(); window.addEventListener('resize',resize);
+  for(let i=0;i<120;i++) stars.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+0.3,a:Math.random(),speed:Math.random()*0.008+0.003,phase:Math.random()*Math.PI*2});
+  (function animate(){
+    ctx.clearRect(0,0,w,h);
+    stars.forEach(s=>{
+      s.a+=s.speed;
+      const alpha=0.25+Math.sin(s.a+s.phase)*0.25;
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(200,210,240,${alpha})`;ctx.fill();
+      if(s.r>0.8){ctx.beginPath();ctx.arc(s.x,s.y,s.r*2.5,0,Math.PI*2);ctx.fillStyle=`rgba(180,200,240,${alpha*0.12})`;ctx.fill();}
+    });
+    requestAnimationFrame(animate);
+  })();
+})();
+</script>
+
+<!-- ===== 主JS文件 ===== -->
+<script src="cards.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
